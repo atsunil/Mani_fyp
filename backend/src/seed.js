@@ -23,12 +23,12 @@ const seedDatabase = async () => {
         const admin = await User.create({
             userId: 'ADM-01-001',
             name: 'Admin User',
-            email: 'admin@medilink.com',
+            email: 'atdharshini708@gmail.com',
             password: 'admin123',
             role: 'admin',
             phone: '9876543210'
         });
-        console.log('✅ Admin user created: admin@medilink.com / admin123');
+        console.log('✅ Admin user created: atdharshini708@gmail.com / admin123');
 
         // Create sample retailers
         const retailer1 = await User.create({
@@ -112,7 +112,7 @@ const seedDatabase = async () => {
         console.log('\n🎉 Database seeded successfully!');
         console.log('\n📋 Login Credentials:');
         console.log('─────────────────────────────────');
-        console.log('Admin:    admin@medilink.com / admin123');
+        console.log('Admin:    atdharshini708@gmail.com / admin123');
         console.log('Retailer: rajesh@pharmacy.com / retailer123');
         console.log('Retailer: priya@medplus.com / retailer123');
         console.log('─────────────────────────────────\n');

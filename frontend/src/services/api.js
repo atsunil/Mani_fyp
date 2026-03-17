@@ -86,7 +86,8 @@ export const orderAPI = {
 export const inventoryAPI = {
     getLogs: (params) => api.get('/inventory/logs', { params }),
     getLowStock: () => api.get('/inventory/low-stock'),
-    getSummary: () => api.get('/inventory/summary')
+    getSummary: () => api.get('/inventory/summary'),
+    notifyLowStock: () => api.post('/inventory/notify-low-stock')
 };
 
 // Payment APIs

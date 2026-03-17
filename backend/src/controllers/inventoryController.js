@@ -1,4 +1,5 @@
-const { Inventory, Product, Category } = require('../models');
+const { Inventory, Product, Category, User } = require('../models');
+const { sendLowStockEmail } = require('../utils/mailer');
 
 // Get inventory logs
 exports.getLogs = async (req, res) => {
@@ -79,5 +80,30 @@ exports.getSummary = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch inventory summary', error: error.message });
+    }
+};
+
+// Send Low Stock Notification Manually
+exports.notifyLowStock = async (req, res) => {
+    try {
+        const products = await Product.find({
+            isActive: true,
+            $expr: { $lte: ['$stockQuantity', '$lowStockThreshold'] }
+        });
+
+        if (products.length === 0) {
+            return res.status(400).json({ message: 'No low stock products found to alert about.' });
+        }
+
+        const admin = await User.findOne({ role: 'admin' });
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin user not found.' });
+        }
+
+        await sendLowStockEmail(products, admin.email);
+        
+        res.json({ message: `Successfully sent low stock alert for ${products.length} items to ${admin.email}.` });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to send low stock notification', error: error.message });
     }
 };

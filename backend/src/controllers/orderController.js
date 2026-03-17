@@ -1,5 +1,10 @@
 const { Order, OrderItem, Product, User, Retailer, Inventory } = require('../models');
 const mongoose = require('mongoose');
+const { 
+    sendOrderConfirmationEmail, 
+    sendAdminOrderNotification, 
+    sendOrderStatusUpdateEmail 
+} = require('../utils/mailer');
 
 const generateOrderNumber = () => {
     const now = new Date();
@@ -96,6 +101,11 @@ exports.placeOrder = async (req, res) => {
         }
 
         const createdOrder = await populateOrder(order._id);
+
+        // Send confirmation emails (async)
+        sendOrderConfirmationEmail(createdOrder, req.user);
+        sendAdminOrderNotification(createdOrder, req.user);
+
         res.status(201).json({ message: 'Order placed successfully', order: createdOrder });
     } catch (error) {
         console.error('Place order error:', error);
@@ -271,6 +281,14 @@ exports.updateStatus = async (req, res) => {
         await order.save();
 
         const updatedOrder = await populateOrder(order._id);
+
+        // Send status update email if confirmed or delivered
+        if (status === 'confirmed' || status === 'delivered') {
+            if (updatedOrder.retailer) {
+                sendOrderStatusUpdateEmail(updatedOrder, updatedOrder.retailer);
+            }
+        }
+
         res.json({ message: `Order ${status}`, order: updatedOrder });
     } catch (error) {
         console.error('Update status error:', error);

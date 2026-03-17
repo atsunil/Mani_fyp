@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
     Box, Card, Typography, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Chip, Grid, Alert
+    TableHead, TableRow, Chip, Grid, Alert, Button
 } from '@mui/material';
-import { Warning, CheckCircle, Error as ErrorIcon, Inventory as InvIcon } from '@mui/icons-material';
+import { Warning, CheckCircle, Error as ErrorIcon, Inventory as InvIcon, Email as EmailIcon } from '@mui/icons-material';
 import { inventoryAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 
@@ -11,6 +11,7 @@ const InventoryManagement = () => {
     const [summary, setSummary] = useState(null);
     const [lowStock, setLowStock] = useState([]);
     const [logs, setLogs] = useState([]);
+    const [sendingEmail, setSendingEmail] = useState(false);
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -28,10 +29,40 @@ const InventoryManagement = () => {
         fetchAll();
     }, []);
 
+    const handleSendAlert = async () => {
+        if (lowStock.length === 0) {
+            toast.info('No low stock products to alert about.');
+            return;
+        }
+        setSendingEmail(true);
+        try {
+            const res = await inventoryAPI.notifyLowStock();
+            toast.success(res.data.message || 'Alert sent successfully!');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to send alert');
+        } finally {
+            setSendingEmail(false);
+        }
+    };
+
     return (
         <Box>
-            <Typography variant="h4" fontWeight={700} mb={0.5}>Inventory</Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>Real-time stock monitoring and alerts</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2, mb: 3 }}>
+                <Box>
+                    <Typography variant="h4" fontWeight={700} mb={0.5}>Inventory</Typography>
+                    <Typography variant="body2" color="text.secondary">Real-time stock monitoring and alerts</Typography>
+                </Box>
+                <Button 
+                    variant="contained" 
+                    color="warning" 
+                    startIcon={<EmailIcon />}
+                    onClick={handleSendAlert}
+                    disabled={sendingEmail || lowStock.length === 0}
+                    sx={{ borderRadius: 2 }}
+                >
+                    {sendingEmail ? 'Sending...' : 'Send Manual Alert'}
+                </Button>
+            </Box>
 
             <Grid container spacing={3} sx={{ mb: 3 }}>
                 {[

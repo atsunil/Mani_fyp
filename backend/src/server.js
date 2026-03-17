@@ -6,6 +6,7 @@ const path = require('path');
 require('dotenv').config();
 
 const { connectDB } = require('./config/database');
+const { startLowStockCron } = require('./cron/lowStockCron');
 
 const authRoutes = require('./routes/authRoutes');
 const retailerRoutes = require('./routes/retailerRoutes');
@@ -55,6 +56,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
     try {
         await connectDB();
+        startLowStockCron();
 
         app.listen(PORT, () => {
             console.log(`🚀 MediLink API server running on port ${PORT}`);

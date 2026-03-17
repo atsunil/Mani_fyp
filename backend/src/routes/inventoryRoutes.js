@@ -8,5 +8,6 @@ router.use(auth, adminOnly);
 router.get('/logs', inventoryController.getLogs);
 router.get('/low-stock', inventoryController.getLowStockAlerts);
 router.get('/summary', inventoryController.getSummary);
+router.post('/notify-low-stock', inventoryController.notifyLowStock);
 
 module.exports = router;
